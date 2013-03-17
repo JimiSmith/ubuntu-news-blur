@@ -1,0 +1,12 @@
+Source: newsblur
+Section: net
+Priority: optional
+Maintainer: Jimi Smith <smithj002@gmail.com>
+Build-Depends: cmake, build-essential, qtbase5-dev, qtdeclarative5-dev
+Homepage: http://github.com/JimiSmith/newsblur
+
+Package: newsblur
+Architecture: any
+Depends: qt-components-ubuntu, qtbase5, libqt5webkit5, libqt5webkit5-qmlwebkitplugin, libqt5concurrent5, libqt5quick5, libqt5sql5-sqlite, libqt5declarative5, libqt5network5
+Description: A News Blur client for Ubuntu
+ A News Blur client, primarily aimed at Ubuntu Phone

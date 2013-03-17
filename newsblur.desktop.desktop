@@ -1,0 +1,12 @@
+[Desktop Entry]
+Version=1.0
+Name=UPReader
+GenericName=News Blur Client
+Comment=View your News Blur feeds
+Type=Application
+Icon=ubuntu-browser
+Exec=UPReader
+Terminal=false
+Categories=Network;WebBrowser;
+Keywords=Internet;RSS;Feeds;Web;Explorer
+Name[en_ZA]=newsblur.desktop

@@ -56,6 +56,7 @@ class NewsBlurApi : public QObject
     Q_OBJECT
 public:
     explicit NewsBlurApi();
+    Q_INVOKABLE bool isLoggedIn();
     Q_INVOKABLE void login(QString username, QString password, NewsBlurResponse *out);
     Q_INVOKABLE void getFeeds(NewsBlurResponse *out);
 

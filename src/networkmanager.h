@@ -8,7 +8,7 @@
 
 #include <functional>
 
-class QNetworkCookieJar;
+class CookieManager;
 
 class NetworkManager : public QObject
 {
@@ -19,6 +19,7 @@ public:
     void apiGet(QString url, QMap<QString, QString>, std::function<void(QNetworkReply*)> complete);
     void atomGet(QString id, QMap<QString, QString>, std::function<void(QNetworkReply*)> complete);
     void accountPost(QString url, QMap<QString, QString> params, std::function<void(QNetworkReply*)> complete);
+    bool loggedIn();
 
 signals:
     void requestComplete(QNetworkReply* reply);
@@ -29,7 +30,7 @@ private:
 
     QNetworkAccessManager* m_netMan;
     QMap<QNetworkReply*, std::function<void(QNetworkReply*)> > m_operations;
-    QNetworkCookieJar* m_cookieJar;
+    CookieManager* m_cookieJar;
 
 private slots:
     void replyFinished(QNetworkReply* reply);

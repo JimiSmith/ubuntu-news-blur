@@ -131,7 +131,11 @@ MainView {
     }
 
     Component.onCompleted: {
-        loginButton.visible = true;
+        if (api.isLoggedIn()) {
+            showFeedList();
+        } else {
+            loginButton.visible = true;
+        }
     }
 
     Item {

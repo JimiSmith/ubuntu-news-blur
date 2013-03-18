@@ -33,6 +33,11 @@ NewsBlurApi::NewsBlurApi()
 
 }
 
+bool NewsBlurApi::isLoggedIn()
+{
+    return m_netMan->loggedIn();
+}
+
 void NewsBlurApi::login(QString username, QString password, NewsBlurResponse *out)
 {
     QMap<QString, QString> params;

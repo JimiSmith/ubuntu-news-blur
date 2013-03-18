@@ -23,6 +23,7 @@ include_directories(
 # We add our source code here
 set(newsblur_src src/main.cpp
                  src/apihelper.cpp
+                 src/cookiemanager.cpp
                  src/networkmanager.cpp
                  src/newsblurapi.cpp
                  src/sqlhelper.cpp

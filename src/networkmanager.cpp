@@ -1,13 +1,12 @@
 #include <QDebug>
-#include <QNetworkCookieJar>
 #include "apihelper.h"
-
+#include "cookiemanager.h"
 #include "networkmanager.h"
 
 NetworkManager::NetworkManager(QObject *parent) :
     QObject(parent),
     m_netMan(new QNetworkAccessManager(this)),
-    m_cookieJar(new QNetworkCookieJar(this))
+    m_cookieJar(new CookieManager(this))
 {
     m_netMan->setCookieJar(m_cookieJar);
     connect(m_netMan, SIGNAL(finished(QNetworkReply*)), this, SLOT(replyFinished(QNetworkReply*)));
@@ -62,4 +61,9 @@ void NetworkManager::replyFinished(QNetworkReply *reply)
         }
     }
     reply->deleteLater();
+}
+
+bool NetworkManager::loggedIn()
+{
+    return m_cookieJar->hasCookies();
 }

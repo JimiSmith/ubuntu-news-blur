@@ -22,6 +22,8 @@
 
 #include <QObject>
 #include <QVariantMap>
+#include <QtConcurrent>
+#include <functional>
 
 class NetworkManager;
 class QNetworkReply;
@@ -30,19 +32,23 @@ class NewsBlurResponse : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(bool ok READ responseOK)
-    Q_PROPERTY(QVariantMap result READ result)
+    Q_PROPERTY(bool authenticated READ authenticated)
 public:
     explicit NewsBlurResponse(QObject *parent = 0);
 
-    void parseJSON(QNetworkReply *response);
+    void parseJSON(QNetworkReply *response, std::function<void(QVariantMap result)> complete);
     bool responseOK();
+    bool authenticated();
     QVariantMap result();
 
 signals:
     void responseReceived();
 
 private:
+    void parseJSONInternal(QByteArray response, std::function<void(QVariantMap result)> complete);
+    QFutureWatcher<void> m_watcher;
     QVariantMap m_result;
+    bool m_error;
 };
 
 class NewsBlurApi : public QObject
@@ -51,6 +57,7 @@ class NewsBlurApi : public QObject
 public:
     explicit NewsBlurApi();
     Q_INVOKABLE void login(QString username, QString password, NewsBlurResponse *out);
+    Q_INVOKABLE void getFeeds(NewsBlurResponse *out);
 
 private:
     NetworkManager *m_netMan;

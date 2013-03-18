@@ -25,6 +25,10 @@ set(newsblur_src src/main.cpp
                  src/apihelper.cpp
                  src/networkmanager.cpp
                  src/newsblurapi.cpp
+                 src/sqlhelper.cpp
+                 src/qmlsqltablemodel.cpp
+                 src/feedmodel.cpp
+                 src/filteredfeedmodel.cpp
                  src/newsblurapp.cpp)
 
 include(src/qml/qml.cmake)

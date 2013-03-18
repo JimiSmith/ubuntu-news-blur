@@ -2,3 +2,6 @@ build/
 CMakeLists.txt.user
 .clang_complete
 tags
+*.swp
+src/*.swp
+src/qml/*.swp

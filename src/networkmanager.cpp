@@ -40,6 +40,13 @@ void NetworkManager::replyFinished(QNetworkReply *reply)
     qDebug() << "Got reply" << reply->url() << reply->error();
     if (reply->error() != QNetworkReply::NoError) {
         qWarning() << "Error with request" << reply->url() << reply->error();
+        auto func = m_operations.value(reply);
+        if (func) {
+            func(NULL);
+            m_operations.remove(reply);
+        } else {
+            emit requestComplete(NULL);
+        }
     } else {
         QUrl possibleRedirectUrl = reply->attribute(QNetworkRequest::RedirectionTargetAttribute).toUrl();
         if(!possibleRedirectUrl.isEmpty()) { //we're being redirected

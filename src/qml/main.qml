@@ -44,8 +44,11 @@ MainView {
         PopupUtils.open(loginDialog);
     }
 
-    function showSubList() {
+    function showFeedList() {
+        readerView.refresh();
         hideLoading();
+        readerView.visible = true;
+        loginButton.visible = false;
     }
 
     function showError(message) {
@@ -54,6 +57,12 @@ MainView {
 
     NewsBlurApi {
         id: api
+    }
+
+    ReaderView {
+        id: readerView
+        anchors.fill: parent
+        visible: false
     }
 
     ActivityIndicator {
@@ -87,8 +96,9 @@ MainView {
                 id: response
                 onResponseReceived: {
                     if (ok) {
-                        if (result.authenticated) {
+                        if (authenticated) {
                             PopupUtils.close(dialog);
+                            showFeedList();
                         } else {
                             sendButton.visible = true;
                             showError("Your username and password do not match");

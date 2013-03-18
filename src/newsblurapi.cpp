@@ -25,6 +25,7 @@
 #include <QtCore/QDebug>
 #include <QNetworkCookie>
 #include "networkmanager.h"
+#include "sqlhelper.h"
 
 NewsBlurApi::NewsBlurApi()
     : m_netMan(new NetworkManager(this))
@@ -37,18 +38,36 @@ void NewsBlurApi::login(QString username, QString password, NewsBlurResponse *ou
     QMap<QString, QString> params;
     params.insert("username", username);
     params.insert("password", password);
-    m_netMan->apiPost("api/login", params, [this,out](QNetworkReply *reply) mutable {
-        out->parseJSON(reply);
+    m_netMan->apiPost("api/login", params, [this,out](QNetworkReply *reply) {
+        out->parseJSON(reply, [](QVariantMap result) {});
+    });
+}
+
+void NewsBlurApi::getFeeds(NewsBlurResponse *out)
+{
+    m_netMan->apiGet("reader/feeds", QMap<QString, QString>(), [this,out](QNetworkReply* reply) {
+        out->parseJSON(reply, [](QVariantMap result) {
+            QVariantList feedList = result.value("feeds").toMap().values();
+            SqlHelper::addOrUpdateFeedBatch(feedList);
+        });
     });
 }
 
 NewsBlurResponse::NewsBlurResponse(QObject *parent)
+    : QObject(parent),
+    m_error(false)
 {
+    connect(&m_watcher, SIGNAL(finished()), this, SIGNAL(responseReceived()));
 }
 
 bool NewsBlurResponse::responseOK()
 {
-    return m_result.value("result").toString() == QString("ok");
+    return !m_error && m_result.value("result").toString() == QString("ok");
+}
+
+bool NewsBlurResponse::authenticated()
+{
+    return m_result.value("authenticated").toInt() == 1;
 }
 
 QVariantMap NewsBlurResponse::result()
@@ -56,11 +75,22 @@ QVariantMap NewsBlurResponse::result()
     return m_result;
 }
 
-void NewsBlurResponse::parseJSON(QNetworkReply* response)
+void NewsBlurResponse::parseJSON(QNetworkReply* response, std::function<void(QVariantMap result)> complete)
 {
-    QJsonDocument sd = QJsonDocument::fromJson(response->readAll());
+    if (response == NULL) {
+        m_error = true;
+        emit responseReceived();
+    } else {
+        m_error = false;
+        QFuture<void> respFuture = QtConcurrent::run(this, &NewsBlurResponse::parseJSONInternal, response->readAll(), complete);
+        m_watcher.setFuture(respFuture);
+    }
+}
+
+void NewsBlurResponse::parseJSONInternal(QByteArray response, std::function<void(QVariantMap result)> complete)
+{
+    QJsonDocument sd = QJsonDocument::fromJson(response);
     m_result = sd.toVariant().toMap();
-    emit responseReceived();
-    qDebug() << m_result;
+    complete(m_result);
 }
 

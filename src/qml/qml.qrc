@@ -1,5 +1,8 @@
 <RCC>
     <qresource prefix="/qml">
         <file>main.qml</file>
+        <file>ReaderView.qml</file>
+        <file>SubList.qml</file>
+        <file>SubItem.qml</file>
     </qresource>
 </RCC>

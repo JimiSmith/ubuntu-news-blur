@@ -22,7 +22,10 @@
 
 #include "newsblurapp.h"
 
+#include "sqlhelper.h"
 #include "newsblurapi.h"
+#include "feedmodel.h"
+#include "filteredfeedmodel.h"
 
 static float getGridUnit()
 {
@@ -69,6 +72,9 @@ void NewsBlurApp::initialize()
     QObject::connect(m_view->engine(), SIGNAL(quit()), m_view, SLOT(close()));
     qmlRegisterType<NewsBlurApi>("NewsBlur", 0, 1, "NewsBlurApi");
     qmlRegisterType<NewsBlurResponse>("NewsBlur", 0, 1, "NewsBlurResponse");
+    qmlRegisterType<FeedModel>("NewsBlur", 0, 1, "FeedModel");
+    qmlRegisterType<FilteredFeedModel>("NewsBlur", 0, 1, "FilteredFeedModel");
+    qRegisterMetaType<QAbstractItemModel* >("QAbstractItemModel*");
     //qRegisterMetaType<NewsBlurResponse*>("NewsBlurResponse*");
     m_view->engine()->addImportPath("qrc:/qml/");
     m_view->setSource(QUrl("qrc:/qml/main.qml"));
@@ -98,4 +104,21 @@ void NewsBlurApp::setupDB()
     m_appDB = QSqlDatabase::addDatabase("QSQLITE");
     m_appDB.setDatabaseName(absPath);
     m_appDB.open();
+
+    if (m_appDB.open()) {
+        QStringList tableValues;
+        tableValues.append("id integer primary key");
+        tableValues.append("title text not null");
+        tableValues.append("url text not null");
+        tableValues.append("color text");
+        tableValues.append("fade_color text");
+        tableValues.append("border_color text");
+        tableValues.append("feed_id int not null");
+        tableValues.append("unread integer");
+        tableValues.append("unread_focus integer");
+        tableValues.append("needs_update integer");
+        tableValues.append("seconds_since_update integer");
+        SqlHelper::createTableIfNeeded(QString("feeds"), tableValues);
+    }
+
 }

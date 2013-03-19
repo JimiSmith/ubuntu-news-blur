@@ -59,6 +59,7 @@ public:
     Q_INVOKABLE bool isLoggedIn();
     Q_INVOKABLE void login(QString username, QString password, NewsBlurResponse *out);
     Q_INVOKABLE void getFeeds(NewsBlurResponse *out);
+    Q_INVOKABLE void updateUnreadCount(NewsBlurResponse *out);
 
 private:
     NetworkManager *m_netMan;

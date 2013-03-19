@@ -38,6 +38,12 @@ void FeedModel::refresh()
     select();
 }
 
+bool FeedModel::needsUpdatedCounts()
+{
+    QSqlRecord r = record(0);
+    return r.value(r.indexOf("needs_update")).toInt() == 1;
+}
+
 //void FeedModel::updateSubList()
 //{
 //    select();

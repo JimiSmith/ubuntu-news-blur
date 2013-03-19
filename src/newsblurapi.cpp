@@ -58,6 +58,16 @@ void NewsBlurApi::getFeeds(NewsBlurResponse *out)
     });
 }
 
+void NewsBlurApi::updateUnreadCount(NewsBlurResponse *out)
+{
+    m_netMan->apiGet("reader/refresh_feeds", QMap<QString, QString>(), [this,out](QNetworkReply* reply) {
+        out->parseJSON(reply, [](QVariantMap result) {
+            QVariantList feedList = result.value("feeds").toMap().values();
+            SqlHelper::addOrUpdateFeedCountsBatch(feedList);
+        });
+    });
+}
+
 NewsBlurResponse::NewsBlurResponse(QObject *parent)
     : QObject(parent),
     m_error(false)

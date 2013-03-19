@@ -23,7 +23,9 @@ import Ubuntu.Components 0.1
 import Ubuntu.Components.ListItems 0.1 as ListItem
 
 Page {
+    id: feedPage
     signal itemClicked(var subscription)
+    property bool isUpdating: false
 
     FeedModel {
         id: feedModel
@@ -35,9 +37,11 @@ Page {
     NewsBlurResponse {
         id: response
         onResponseReceived: {
-            console.log("Got resp: " + ok);
+            feedPage.isUpdating = false;
             feedModel.refresh();
-
+            if (feedModel.needsUpdatedCounts()) {
+                api.updateUnreadCount(response);
+            }
         }
     }
 
@@ -45,6 +49,7 @@ Page {
         target: readerView
         onRefresh: {
             api.getFeeds(response);
+            feedPage.isUpdating = true;
         }
     }
 
@@ -69,7 +74,7 @@ Page {
                     delegate: SubItem {
                         itemTitle: title
                         unreadCount: unread
-                        updating: needs_update
+                        updating: feedPage.isUpdating || needs_update
                         onClicked: {
                             itemClicked(id, title);
                         }
@@ -95,7 +100,7 @@ Page {
                     delegate: SubItem {
                         itemTitle: title
                         unreadCount: unread
-                        updating: needs_update
+                        updating: feedPage.isUpdating || needs_update
                         onClicked: {
                             itemClicked(id, title);
                         }

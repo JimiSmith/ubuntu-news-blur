@@ -37,6 +37,7 @@ public:
     virtual ~FeedModel();
 
     Q_INVOKABLE void refresh();
+    Q_INVOKABLE bool needsUpdatedCounts();
 };
 
 #endif // FEEDMODEL_H

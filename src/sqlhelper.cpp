@@ -38,12 +38,10 @@ void SqlHelper::createTableIfNeeded(QString tableName, QStringList values)
 
 bool SqlHelper::addOrUpdateFeedBatch(QVariantList subData)
 {
-    qDebug() << "Updating";
     bool result = true;
     int count = subData.length();
     for (int i = 0; i < count; ++i) {
         QVariant m = subData.at(i);
-        qDebug() << "Updating" << m.toMap().value("feed_title") << m.toMap().value("id");
         result = addOrUpdateFeed(m.toMap()) && result;
     }
 
@@ -95,12 +93,48 @@ bool SqlHelper::addOrUpdateFeed(QVariantMap subData)
     return true;
 }
 
+bool SqlHelper::addOrUpdateFeedCountsBatch(QVariantList subData)
+{
+    bool result = true;
+    int count = subData.length();
+    for (int i = 0; i < count; ++i) {
+        QVariant m = subData.at(i);
+        result = addOrUpdateFeedCount(m.toMap()) && result;
+    }
+
+    return result;
+}
+
+bool SqlHelper::addOrUpdateFeedCount(QVariantMap subData)
+{
+    QSqlDatabase::database().transaction();
+    QSqlQuery dataQuery;
+
+    dataQuery.prepare("UPDATE feeds SET needs_update=0, unread=:unread, unread_focus=:unread_focus WHERE feed_id=:id");
+
+    QString id = QString::number(subData.value("id").toInt());
+    dataQuery.bindValue(":id", id);
+    dataQuery.bindValue(":unread", subData.value("nt"));
+    dataQuery.bindValue(":unread_focus", subData.value("ng"));
+
+    bool dataRet = dataQuery.exec();
+
+    if (!dataRet) {
+        qWarning() << "Error with dataQuery:" << dataQuery.lastError();
+        QSqlDatabase::database().rollback();
+        return false;
+    }
+    QSqlDatabase::database().commit();
+
+    return true;
+}
+
 bool SqlHelper::setAllFeedsToLoadingState()
 {
     QSqlDatabase::database().transaction();
     QSqlQuery dataQuery;
 
-    dataQuery.prepare("UPDATE subscriptions SET needs_update=1, unread=0");
+    dataQuery.prepare("UPDATE subscriptions SET needs_update=1");
 
     bool dataRet = dataQuery.exec();
 

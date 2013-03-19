@@ -5,3 +5,4 @@ tags
 *.swp
 src/*.swp
 src/qml/*.swp
+.ycm_extra_conf.pyc

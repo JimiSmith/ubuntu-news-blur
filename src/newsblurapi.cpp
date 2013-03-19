@@ -38,34 +38,40 @@ bool NewsBlurApi::isLoggedIn()
     return m_netMan->loggedIn();
 }
 
-void NewsBlurApi::login(QString username, QString password, NewsBlurResponse *out)
+NewsBlurResponse* NewsBlurApi::login(QString username, QString password)
 {
+    NewsBlurResponse *out = new NewsBlurResponse(this);
     QMap<QString, QString> params;
     params.insert("username", username);
     params.insert("password", password);
     m_netMan->apiPost("api/login", params, [this,out](QNetworkReply *reply) {
         out->parseJSON(reply, [](QVariantMap result) {});
     });
+    return out;
 }
 
-void NewsBlurApi::getFeeds(NewsBlurResponse *out)
+NewsBlurResponse* NewsBlurApi::getFeeds()
 {
+    NewsBlurResponse *out = new NewsBlurResponse(this);
     m_netMan->apiGet("reader/feeds", QMap<QString, QString>(), [this,out](QNetworkReply* reply) {
         out->parseJSON(reply, [](QVariantMap result) {
             QVariantList feedList = result.value("feeds").toMap().values();
             SqlHelper::addOrUpdateFeedBatch(feedList);
         });
     });
+    return out;
 }
 
-void NewsBlurApi::updateUnreadCount(NewsBlurResponse *out)
+NewsBlurResponse* NewsBlurApi::updateUnreadCount()
 {
+    NewsBlurResponse *out = new NewsBlurResponse(this);
     m_netMan->apiGet("reader/refresh_feeds", QMap<QString, QString>(), [this,out](QNetworkReply* reply) {
         out->parseJSON(reply, [](QVariantMap result) {
             QVariantList feedList = result.value("feeds").toMap().values();
             SqlHelper::addOrUpdateFeedCountsBatch(feedList);
         });
     });
+    return out;
 }
 
 NewsBlurResponse::NewsBlurResponse(QObject *parent)

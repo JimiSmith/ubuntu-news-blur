@@ -34,21 +34,20 @@ Page {
         }
     }
 
-    NewsBlurResponse {
-        id: response
-        onResponseReceived: {
-            feedPage.isUpdating = false;
-            feedModel.refresh();
-            if (feedModel.needsUpdatedCounts()) {
-                api.updateUnreadCount(response);
-            }
-        }
-    }
-
     Connections {
         target: readerView
         onRefresh: {
-            api.getFeeds(response);
+            var resp = api.getFeeds();
+            resp.responseReceived.connect(function () {
+                feedPage.isUpdating = false;
+                feedModel.refresh();
+                if (feedModel.needsUpdatedCounts()) {
+                    var unreadResp = api.updateUnreadCount();
+                    unreadResp.responseReceived.connect(function () {
+                        feedModel.refresh();
+                    });
+                }
+            });
             feedPage.isUpdating = true;
         }
     }

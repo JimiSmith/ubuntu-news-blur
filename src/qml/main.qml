@@ -92,30 +92,26 @@ MainView {
                 echoMode: TextInput.Password
             }
 
-            NewsBlurResponse {
-                id: response
-                onResponseReceived: {
-                    if (ok) {
-                        if (authenticated) {
-                            PopupUtils.close(dialog);
-                            showFeedList();
-                        } else {
-                            sendButton.visible = true;
-                            showError("Your username and password do not match");
-                        }
-                    } else {
-                        sendButton.visible = true;
-                        showError("There was an error contacting the server");
-                    }
-                }
-            }
-
             Button {
                 id: sendButton
                 text: "Login"
                 onClicked: {
                     sendButton.visible = false;
-                    api.login(usernameInput.text, passwordInput.text, response);
+                    var resp = api.login(usernameInput.text, passwordInput.text);
+                    resp.responseReceived.connect(function () {
+                        if (resp.ok) {
+                            if (resp.authenticated) {
+                                PopupUtils.close(dialog);
+                                showFeedList();
+                            } else {
+                                sendButton.visible = true;
+                                showError("Your username and password do not match");
+                            }
+                        } else {
+                            sendButton.visible = true;
+                            showError("There was an error contacting the server");
+                        }
+                    });
                 }
             }
         }
